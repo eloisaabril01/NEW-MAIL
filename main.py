@@ -8,8 +8,11 @@ app = FastAPI()
 def home():
     return {"status": "API is live"}
 
-@app.post("/mail")
+@app.api_route("/mail", methods=["GET", "POST"])
 def create_temp_and_confirm():
+    if requests.method == "GET":
+        return {"message": "Use POST to trigger email creation and confirmation."}
+
     register_url = "https://api.mail.tm/accounts"
     domain = "dcpa.net"
     email = f"testuser{int(time.time())}@{domain}"
@@ -20,7 +23,6 @@ def create_temp_and_confirm():
     if res.status_code != 201:
         return {"error": "Failed to create account"}
 
-    account_data = res.json()
     token_res = requests.post("https://api.mail.tm/token", json=payload)
     token = token_res.json().get("token")
 
